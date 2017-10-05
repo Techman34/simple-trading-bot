@@ -27,7 +27,6 @@
     "trading-bot",
     "melon"
   ],
-  "author": "Simon Emanuel Schmid <simon@schmid.io>",
   "license": "GPL-3.0",
   "bugs": {
     "url": "https://github.com/melonproject/simple-trading-bot/issues"
