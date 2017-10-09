@@ -11,7 +11,8 @@ import {
   getParticipation,
   performCalculations,
   getActiveOrders,
-  takeOrderFromFund
+  takeOrderFromFund,
+  getFundContract
 } from "@melonproject/melon.js";
 
 const web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
