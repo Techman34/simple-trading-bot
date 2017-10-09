@@ -1,3 +1,4 @@
+import Web3 from "web3";
 import {
   setup,
   trace,
@@ -9,9 +10,9 @@ import {
 } from "@melonproject/melon.js";
 import setupBot from "./utils/setupBot";
 import getReversedPrices from "./utils/getReversedPrices";
-import estimateFullCost from "./utils/estimateFullCost";
 import makeDecision from "./utils/makeDecision";
 import checkFundsAvailable from "./utils/checkFundsAvailable";
+import createMarket from "./createMarket";
 
 const web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
 
@@ -35,12 +36,18 @@ const apiPath = "https://api.liqui.io/api/3/ticker/";
   trace({
     message: `Melon trading bot starting w following eth address ${setup.defaultAccount}`
   });
-  const etherBalance = setup.web3.fromWei(
+  const ketherBalance = setup.web3.fromWei(
     setup.web3.eth.getBalance(setup.defaultAccount)
   );
   const melonBalance = await getBalance("MLN-T");
-  trace({ message: `Etherbalance: Ξ${etherBalance} ` });
-  trace({ message: `Melon Balance: Ⓜ  ${melonBalance} ` });
+  const etherBalance = await getBalance("ETH-T");
+  trace({ message: `K-Etherbalance: Ξ${ketherBalance} ` });
+  trace({ message: `Melon Token Balance: Ⓜ  ${melonBalance} ` });
+  trace({ message: `Ether Token Balance: Ⓜ  ${etherBalance} ` });
+
+  await createMarket();
+
+  console.log("Created market");
 
   const MelonBot = await setupBot(INITIAL_SUBSCRIBE_QUANTITY);
   // const MelonBot = { address: "0xc7b66cef43441bbaf6fb4ebffd7cdeb3216db756" };
