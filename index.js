@@ -48,8 +48,8 @@ const apiPath = "https://api.liqui.io/api/3/ticker/";
 
   // await createMarket();
 
-  const MelonBot = await setupBot(INITIAL_SUBSCRIBE_QUANTITY);
-  // const MelonBot = { address: "0xc7b66cef43441bbaf6fb4ebffd7cdeb3216db756" };
+  // const MelonBot = await setupBot(INITIAL_SUBSCRIBE_QUANTITY);
+  const MelonBot = { address: "0xb6cffa05542404eee25653e7582d5d71d55dcb9f" };
 
   const activeOrders = await getActiveOrders(baseTokenSymbol, quoteTokenSymbol);
 
