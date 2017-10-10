@@ -68,6 +68,8 @@ const createMarket = async () => {
       symbol: "ETH-T"
     }
   });
+
+  console.log("Created fictional market");
 };
 
 export default createMarket;
