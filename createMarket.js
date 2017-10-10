@@ -62,7 +62,7 @@ function sleep(ms) {
     const info = getTokenInfo("ETH-T");
     console.log(info);
 
-    let { buy, sell, last } = await getReversedPrices(
+    const { buy, sell, last } = await getReversedPrices(
       baseTokenSymbol,
       quoteTokenSymbol,
       apiPath
@@ -126,7 +126,7 @@ function sleep(ms) {
     console.log("sell order 3");
     console.log(sellorder3);
 
-    let priceSell = 1 / buy + 1 / buy * 0.1;
+    const priceSell = 1 / buy + 1 / buy * 0.1;
 
     const sellorder4 = await makeOrder({
       sell: {
@@ -186,7 +186,7 @@ function sleep(ms) {
     console.log("buy order 3");
     console.log(buyorder3);
 
-    let priceBuy = 1 / sell - 1 / sell * 0.1;
+    const priceBuy = 1 / sell - 1 / sell * 0.1;
 
     const buyorder4 = await makeOrder({
       buy: {
@@ -218,7 +218,7 @@ function sleep(ms) {
     quoteTokenSymbol,
     apiPath
   );
-  
+
   console.log(marketPrice)
 */
 
@@ -241,63 +241,3 @@ function sleep(ms) {
   }
 */
 })();
-
-/*
-(async () => {
-  trace({
-    message: `Melon trading bot starting w following eth address ${setup.defaultAccount}`
-  });
-  const ketherBalance = setup.web3.fromWei(
-    setup.web3.eth.getBalance(setup.defaultAccount)
-  );
-  const melonBalance = await getBalance("MLN-T");
-  const etherBalance = await getBalance("ETH-T");
-  trace({ message: `K-Etherbalance: Ξ${ketherBalance} ` });
-  trace({ message: `Melon Token Balance: Ⓜ  ${melonBalance} ` });
-  trace({ message: `Ether Token Balance: Ⓜ  ${etherBalance} ` });
-
-  // await createMarket();
-
-  const MelonBot = await setupBot(INITIAL_SUBSCRIBE_QUANTITY);
-  // const MelonBot = { address: "0xc7b66cef43441bbaf6fb4ebffd7cdeb3216db756" };
-
-  const activeOrders = await getActiveOrders(baseTokenSymbol, quoteTokenSymbol);
-
-  await Promise.all(
-    activeOrders.map(async order => {
-      const marketPrice = await getReversedPrices(
-        baseTokenSymbol,
-        quoteTokenSymbol,
-        apiPath
-      );
-
-      await processOrder(order, MelonBot.address, marketPrice);
-    })
-  );
-
-  const tracker = melonTracker.on("LogItemUpdate");
-
-  tracker((type, data) => {
-    console.log(type);
-    processNewOrder(type.id, MelonBot.address);
-  });
-})();
-
-const processNewOrder = async (id, fundAddress) => {
-  const order = await getOrder(id);
-  if (isFromAssetPair(order, assetPairArray)) {
-    const enhancedOrder = enhanceOrder(
-      order,
-      baseTokenSymbol,
-      quoteTokenSymbol
-    );
-
-    const marketPrice = await getReversedPrices(
-      baseTokenSymbol,
-      quoteTokenSymbol,
-      apiPath
-    );
-    await processOrder(enhancedOrder, fundAddress, marketPrice);
-  }
-};
-*/

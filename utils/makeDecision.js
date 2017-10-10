@@ -14,7 +14,7 @@ const makeDecision = async (order, marketPrice, fundAddress) => {
     );
     if (fullCost < marketPrice.sell) {
       trace({
-        message: `BUY SIGNAL w Real time price: ${marketPrice.sell} and Order price: ${order.price.toNumber()} and total price w gas included ${fullCost}`
+        message: `BUY SIGNAL w Real time price: ${marketPrice.sell} and Order price: ${order.price.toNumber()} and total cost w gas included ${fullCost}`
       });
       return ["BUY_SIGNAL", order.id];
     }
@@ -27,7 +27,7 @@ const makeDecision = async (order, marketPrice, fundAddress) => {
     );
     if (fullCost > marketPrice.buy) {
       trace({
-        message: `SELL SIGNAL w Real time price: ${marketPrice.buy} and Order price: ${order.price.toNumber()}`
+        message: `SELL SIGNAL w Real time price: ${marketPrice.buy} and Order price: ${order.price.toNumber()} and total cost w gas included ${fullCost}`
       });
       return ["SELL_SIGNAL", order.id];
     }

@@ -10,6 +10,7 @@ const processOrder = async (order, fundAddress, marketPrice) => {
     if (!sufficientBalance) {
       console.log("Insufficient funds to take this order :( ");
     } else {
+      console.log(`${decision[0]} && fund has sufficient balance`);
       const tradeReceipt = await takeOrderFromFund(decision[1], fundAddress);
       if (tradeReceipt.executedQuantity.toNumber() !== 0) {
         console.log(`Trade executed; took order w id ${decision[1]}`);
