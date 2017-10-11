@@ -2,7 +2,7 @@
 A simple melon.js based trading bot
 
 ### Start the trading bot
-- You need an unlocked parity node running (and which has k-ETH and k-MLN). 
+- You need an unlocked parity node running (and which has [k-ETH and k-MLN](http://faucet.melon.network)). 
 - ```npm install ```
 - ```npm start ```
 
