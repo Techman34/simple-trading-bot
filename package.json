@@ -13,7 +13,10 @@
     "precommit": "lint-staged"
   },
   "lint-staged": {
-    "*.js": ["prettier --write", "git add"]
+    "*.js": [
+      "prettier --write",
+      "git add"
+    ]
   },
   "repository": {
     "type": "git",
@@ -33,7 +36,9 @@
   },
   "homepage": "https://github.com/melonproject/simple-trading-bot#readme",
   "dependencies": {
-    "@melonproject/melon.js": "^0.3.2"
+    "@melonproject/melon.js": "0.3.3-alpha.3",
+    "bignumber.js": "^4.1.0",
+    "request-promise": "^4.2.2"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
