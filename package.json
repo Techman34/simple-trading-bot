@@ -37,7 +37,7 @@
   },
   "homepage": "https://github.com/melonproject/simple-trading-bot#readme",
   "dependencies": {
-    "@melonproject/melon.js": "0.3.3-alpha.3",
+    "@melonproject/melon.js": "0.3.4-alpha.2",
     "bignumber.js": "^4.1.0",
     "request-promise": "^4.2.2"
   },
