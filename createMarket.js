@@ -56,19 +56,18 @@ const traceOrder = order =>
   );
 
 (async () => {
-  const ketherBalance = setup.web3.fromWei(
-    setup.web3.eth.getBalance(setup.defaultAccount)
-  );
-
-  const melonBalance = await getBalance("MLN-T");
-  const etherBalance = await getBalance("ETH-T");
-  trace(`K-Etherbalance: Ξ${ketherBalance}`);
-  trace(`Melon Token Balance: Ⓜ-T  ${melonBalance}`);
-  trace(`Ether Token Balance: Ξ-T  ${etherBalance}`);
-
   while (true) {
     try {
       trace("Start Interval");
+      const ketherBalance = setup.web3.fromWei(
+        setup.web3.eth.getBalance(setup.defaultAccount)
+      );
+
+      const melonBalance = await getBalance("MLN-T");
+      const etherBalance = await getBalance("ETH-T");
+      trace(`K-Etherbalance: Ξ${ketherBalance}`);
+      trace(`Melon Token Balance: Ⓜ-T  ${melonBalance}`);
+      trace(`Ether Token Balance: Ξ-T  ${etherBalance}`);
 
       const info = getTokenInfo("ETH-T");
 
