@@ -52,192 +52,146 @@ function sleep(ms) {
 
   const melonBalance = await getBalance("MLN-T");
   const etherBalance = await getBalance("ETH-T");
-  trace({ message: `K-Etherbalance: Ξ${ketherBalance} ` });
-  trace({ message: `Melon Token Balance: Ⓜ  ${melonBalance} ` });
-  trace({ message: `Ether Token Balance: Ⓜ  ${etherBalance} ` });
+  trace(`K-Etherbalance: Ξ${ketherBalance}`);
+  trace(`Melon Token Balance: Ⓜ-T  ${melonBalance}`);
+  trace(`Ether Token Balance: Ξ-T  ${etherBalance}`);
 
   while (true) {
-    console.log("- intervalo -");
+    try {
+      trace("Start Interval");
 
-    const info = getTokenInfo("ETH-T");
-    console.log(info);
+      const info = getTokenInfo("ETH-T");
 
-    const { buy, sell, last } = await getReversedPrices(
-      baseTokenSymbol,
-      quoteTokenSymbol,
-      apiPath
-    );
+      const { buy, sell, last } = await getReversedPrices(
+        baseTokenSymbol,
+        quoteTokenSymbol,
+        apiPath
+      );
 
-    /*
-    const insideorder = await makeOrder({
+      const sellorder1 = await makeOrder({
         sell: {
-            howMuch: new BigNumber(10),
-            symbol: "ETH-T"
+          howMuch: new BigNumber((1 / sell).toFixed(15)),
+          symbol: "ETH-T"
         },
         buy: {
-            howMuch: new BigNumber(1),
-            symbol: "MLN-T"
-        }
-    });
-
-    console.log("....")
-    console.log(insideorder)
-    */
-
-    const sellorder1 = await makeOrder({
-      sell: {
-        howMuch: new BigNumber((1 / sell).toFixed(15)),
-        symbol: "ETH-T"
-      },
-      buy: {
-        howMuch: new BigNumber(1),
-        symbol: "MLN-T"
-      }
-    });
-
-    console.log("sell order 1");
-    console.log(sellorder1);
-
-    const sellorder2 = await makeOrder({
-      sell: {
-        howMuch: new BigNumber((1 / last).toFixed(15)),
-        symbol: "ETH-T"
-      },
-      buy: {
-        howMuch: new BigNumber(1),
-        symbol: "MLN-T"
-      }
-    });
-
-    console.log("sell order 2");
-    console.log(sellorder2);
-
-    const sellorder3 = await makeOrder({
-      sell: {
-        howMuch: new BigNumber((1 / buy).toFixed(15)),
-        symbol: "ETH-T"
-      },
-      buy: {
-        howMuch: new BigNumber(1),
-        symbol: "MLN-T"
-      }
-    });
-
-    console.log("sell order 3");
-    console.log(sellorder3);
-
-    const priceSell = 1 / buy + 1 / buy * 0.1;
-
-    const sellorder4 = await makeOrder({
-      sell: {
-        howMuch: new BigNumber(priceSell.toFixed(15)),
-        symbol: "ETH-T"
-      },
-      buy: {
-        howMuch: new BigNumber(1),
-        symbol: "MLN-T"
-      }
-    });
-
-    console.log("sell order 4");
-    console.log(sellorder4);
-
-    // BUY ORDERS
-
-    const buyorder1 = await makeOrder({
-      buy: {
-        howMuch: new BigNumber((1 / sell).toFixed(15)),
-        symbol: "ETH-T"
-      },
-      sell: {
-        howMuch: new BigNumber(1),
-        symbol: "MLN-T"
-      }
-    });
-
-    console.log(buyorder1);
-    console.log("buy order 1");
-
-    const buyorder2 = await makeOrder({
-      buy: {
-        howMuch: new BigNumber((1 / last).toFixed(15)),
-        symbol: "ETH-T"
-      },
-      sell: {
-        howMuch: new BigNumber(1),
-        symbol: "MLN-T"
-      }
-    });
-
-    console.log("buy order 2");
-    console.log(buyorder2);
-
-    const buyorder3 = await makeOrder({
-      buy: {
-        howMuch: new BigNumber((1 / buy).toFixed(15)),
-        symbol: "ETH-T"
-      },
-      sell: {
-        howMuch: new BigNumber(1),
-        symbol: "MLN-T"
-      }
-    });
-
-    console.log("buy order 3");
-    console.log(buyorder3);
-
-    const priceBuy = 1 / sell - 1 / sell * 0.1;
-
-    const buyorder4 = await makeOrder({
-      buy: {
-        howMuch: new BigNumber(priceBuy.toFixed(15)),
-        symbol: "ETH-T"
-      },
-      sell: {
-        howMuch: new BigNumber(1),
-        symbol: "MLN-T"
-      }
-    });
-
-    console.log("buy order 4");
-    console.log(buyorder4);
-
-    console.log("wainign");
-    await sleep(5 * MINUTE);
-
-    console.log("done sleeping");
-  }
-
-  /*
-  setInterval(() => {
-
-  }, 5 * SECONDS)
-
-  const marketPrice = await getReversedPrices(
-    baseTokenSymbol,
-    quoteTokenSymbol,
-    apiPath
-  );
-
-  console.log(marketPrice)
-*/
-
-  /*
-  try {
-  const firstOrder = await makeOrder({
-      sell: {
           howMuch: new BigNumber(1),
-          symbol: "ETH-T"
-      },
-      buy: {
-          howMuch: new BigNumber(2),
           symbol: "MLN-T"
-      }
-  });
+        }
+      });
 
-  console.log(firstOrder)
-  } catch(err) {
-    console.log(err)
+      console.log("sell order 1");
+      console.log(sellorder1);
+
+      const sellorder2 = await makeOrder({
+        sell: {
+          howMuch: new BigNumber((1 / last).toFixed(15)),
+          symbol: "ETH-T"
+        },
+        buy: {
+          howMuch: new BigNumber(1),
+          symbol: "MLN-T"
+        }
+      });
+
+      console.log("sell order 2");
+      console.log(sellorder2);
+
+      const sellorder3 = await makeOrder({
+        sell: {
+          howMuch: new BigNumber((1 / buy).toFixed(15)),
+          symbol: "ETH-T"
+        },
+        buy: {
+          howMuch: new BigNumber(1),
+          symbol: "MLN-T"
+        }
+      });
+
+      console.log("sell order 3");
+      console.log(sellorder3);
+
+      const priceSell = 1 / buy + 1 / buy * 0.1;
+
+      const sellorder4 = await makeOrder({
+        sell: {
+          howMuch: new BigNumber(priceSell.toFixed(15)),
+          symbol: "ETH-T"
+        },
+        buy: {
+          howMuch: new BigNumber(1),
+          symbol: "MLN-T"
+        }
+      });
+
+      console.log("sell order 4");
+      console.log(sellorder4);
+
+      // BUY ORDERS
+
+      const buyorder1 = await makeOrder({
+        buy: {
+          howMuch: new BigNumber((1 / sell).toFixed(15)),
+          symbol: "ETH-T"
+        },
+        sell: {
+          howMuch: new BigNumber(1),
+          symbol: "MLN-T"
+        }
+      });
+
+      console.log(buyorder1);
+      console.log("buy order 1");
+
+      const buyorder2 = await makeOrder({
+        buy: {
+          howMuch: new BigNumber((1 / last).toFixed(15)),
+          symbol: "ETH-T"
+        },
+        sell: {
+          howMuch: new BigNumber(1),
+          symbol: "MLN-T"
+        }
+      });
+
+      console.log("buy order 2");
+      console.log(buyorder2);
+
+      const buyorder3 = await makeOrder({
+        buy: {
+          howMuch: new BigNumber((1 / buy).toFixed(15)),
+          symbol: "ETH-T"
+        },
+        sell: {
+          howMuch: new BigNumber(1),
+          symbol: "MLN-T"
+        }
+      });
+
+      console.log("buy order 3");
+      console.log(buyorder3);
+
+      const priceBuy = 1 / sell - 1 / sell * 0.1;
+
+      const buyorder4 = await makeOrder({
+        buy: {
+          howMuch: new BigNumber(priceBuy.toFixed(15)),
+          symbol: "ETH-T"
+        },
+        sell: {
+          howMuch: new BigNumber(1),
+          symbol: "MLN-T"
+        }
+      });
+
+      console.log("buy order 4");
+      console.log(buyorder4);
+
+      console.log("done sleeping");
+    } catch (e) {
+      trace.warn("Error in loop", e);
+    } finally {
+      console.log("wainign");
+      await sleep(5 * MINUTE);
+    }
   }
-*/
 })();
