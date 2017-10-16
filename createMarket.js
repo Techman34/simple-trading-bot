@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 import Web3 from "web3";
 
 import BigNumber from "bignumber.js";
@@ -28,7 +30,7 @@ const tracer = ({ timestamp, message, category, data }) => {
 
 setup.init({
   web3,
-  defaultAccount: "0x083fe3c77a09ee1ffe34b13a0dcf66d52974cf85",
+  defaultAccount: process.env.DEFAULT_ACCOUNT,
   tracer
 });
 
