@@ -47,6 +47,14 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+const traceOrder = order =>
+  trace(
+    `Placed order (${order.id.toNumber()}): ` +
+      `Sell: ${order.sell.howMuch.toFixed(4)} ${order.sell.symbol} / ` +
+      `Buy: ${order.buy.howMuch.toFixed(4)} ${order.buy.symbol} : ` +
+      `Price: ${order.sell.howMuch.div(order.buy.howMuch).toFixed(4)}`
+  );
+
 (async () => {
   const ketherBalance = setup.web3.fromWei(
     setup.web3.eth.getBalance(setup.defaultAccount)
@@ -70,6 +78,8 @@ function sleep(ms) {
         apiPath
       );
 
+      trace(`Got prices. Buy: ${buy}, sell: ${sell}, last: ${last}`);
+
       const sellorder1 = await makeOrder({
         sell: {
           howMuch: new BigNumber((1 / sell).toFixed(15)),
@@ -81,8 +91,7 @@ function sleep(ms) {
         }
       });
 
-      console.log("sell order 1");
-      console.log(sellorder1);
+      traceOrder(sellorder1);
 
       const sellorder2 = await makeOrder({
         sell: {
@@ -95,8 +104,7 @@ function sleep(ms) {
         }
       });
 
-      console.log("sell order 2");
-      console.log(sellorder2);
+      traceOrder(sellorder2);
 
       const sellorder3 = await makeOrder({
         sell: {
@@ -109,8 +117,7 @@ function sleep(ms) {
         }
       });
 
-      console.log("sell order 3");
-      console.log(sellorder3);
+      traceOrder(sellorder3);
 
       const priceSell = 1 / buy + 1 / buy * 0.1;
 
@@ -125,8 +132,7 @@ function sleep(ms) {
         }
       });
 
-      console.log("sell order 4");
-      console.log(sellorder4);
+      traceOrder(sellorder4);
 
       // BUY ORDERS
 
@@ -141,8 +147,7 @@ function sleep(ms) {
         }
       });
 
-      console.log(buyorder1);
-      console.log("buy order 1");
+      traceOrder(buyorder1);
 
       const buyorder2 = await makeOrder({
         buy: {
@@ -155,8 +160,7 @@ function sleep(ms) {
         }
       });
 
-      console.log("buy order 2");
-      console.log(buyorder2);
+      traceOrder(buyorder2);
 
       const buyorder3 = await makeOrder({
         buy: {
@@ -169,8 +173,7 @@ function sleep(ms) {
         }
       });
 
-      console.log("buy order 3");
-      console.log(buyorder3);
+      traceOrder(buyorder3);
 
       const priceBuy = 1 / sell - 1 / sell * 0.1;
 
@@ -185,15 +188,12 @@ function sleep(ms) {
         }
       });
 
-      console.log("buy order 4");
-      console.log(buyorder4);
-
-      console.log("done sleeping");
+      traceOrder(buyorder4);
     } catch (e) {
       trace.warn("Error in loop", e);
     } finally {
-      console.log("wainign");
-      await sleep(5 * MINUTE);
+      trace(`SLEEP: ${process.env.MARKET_SLEEP_MINUTES * MINUTE}`);
+      await sleep(process.env.MARKET_SLEEP_MINUTES * MINUTE);
     }
   }
 })();
