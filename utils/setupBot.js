@@ -10,7 +10,9 @@ import {
   performCalculations
 } from "@melonproject/melon.js";
 
-const setupBot = async INITIAL_SUBSCRIBE_QUANTITY => {
+const setupBot = async (
+  INITIAL_SUBSCRIBE_QUANTITY = process.env.INITIAL_SUBSCRIBE_QUANTITY
+) => {
   trace({ message: "Creating a Melon fund" });
   const MelonBot = await setupFund("MelonBot");
   trace({

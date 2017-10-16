@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 import Web3 from "web3";
 import {
   setup,
@@ -7,12 +9,13 @@ import {
   melonTracker,
   getOrder
 } from "@melonproject/melon.js";
-import setupBot from "./utils/setupBot";
+
 import getReversedPrices from "./utils/getReversedPrices";
 // import createMarket from "./createMarket";
 import processOrder from "./utils/processOrder";
 import enhanceOrder from "./utils/enhanceOrder";
 import isFromAssetPair from "./utils/isFromAssetPair";
+import getOrCreateFund from "./utils/getOrCreateFund";
 
 const web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
 
@@ -23,11 +26,10 @@ const tracer = ({ timestamp, message, category, data }) => {
 
 setup.init({
   web3,
-  defaultAccount: "0x2b3f0ef33be5f80171e4206ed2e5a40640388af1",
+  defaultAccount: process.env.DEFAULT_ACCOUNT,
   tracer
 });
 
-const INITIAL_SUBSCRIBE_QUANTITY = 100;
 const baseTokenSymbol = "ETH-T";
 const quoteTokenSymbol = "MLN-T";
 const assetPairArray = [baseTokenSymbol, quoteTokenSymbol];
@@ -46,10 +48,7 @@ const apiPath = "https://api.liqui.io/api/3/ticker/";
   trace({ message: `Melon Token Balance: Ⓜ  ${melonBalance} ` });
   trace({ message: `Ether Token Balance: Ⓜ  ${etherBalance} ` });
 
-  // await createMarket();
-
-  const MelonBot = await setupBot(INITIAL_SUBSCRIBE_QUANTITY);
-  // const MelonBot = { address: '0x9e662fab9cff01f08ed8623ca2fd37ecc18a80f2' };
+  const fund = await getOrCreateFund();
 
   const activeOrders = await getActiveOrders(baseTokenSymbol, quoteTokenSymbol);
 
@@ -62,7 +61,11 @@ const apiPath = "https://api.liqui.io/api/3/ticker/";
         apiPath
       );
 
-      await processOrder(order, MelonBot.address, marketPrice);
+      try {
+        await processOrder(order, fund.address, marketPrice);
+      } catch (e) {
+        trace.warn(`Error while processingOrder`, e);
+      }
     })
   );
 
@@ -71,7 +74,11 @@ const apiPath = "https://api.liqui.io/api/3/ticker/";
 
   tracker((type, data) => {
     console.log(type);
-    processNewOrder(type.id, MelonBot.address);
+    try {
+      processNewOrder(type.id, fund.address);
+    } catch (e) {
+      trace.warn(`Error while processing new order`, e);
+    }
   });
 })();
 

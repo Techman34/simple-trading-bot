@@ -191,7 +191,7 @@ const traceOrder = order =>
     } catch (e) {
       trace.warn("Error in loop", e);
     } finally {
-      trace(`SLEEP: ${process.env.MARKET_SLEEP_MINUTES * MINUTE}`);
+      trace(`SLEEP: ${process.env.MARKET_SLEEP_MINUTES} Minutes`);
       await sleep(process.env.MARKET_SLEEP_MINUTES * MINUTE);
     }
   }
