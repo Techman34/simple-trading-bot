@@ -11,7 +11,8 @@
     "start": "babel-node index.js",
     "start-market": "babel-node createMarket.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prettier": "prettier --write **/*.js"
+    "prettier": "prettier --write **/*.js",
+    "new-fund": "babel-node newFund.js"
   },
   "lint-staged": {
     "*.js": [
