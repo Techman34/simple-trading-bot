@@ -18,7 +18,7 @@ const setupBot = async (
   trace({
     message: `${MelonBot.name} here! Nice to meet you. My fund address is ${MelonBot.address} `
   });
-  console.log(
+  trace(
     "I need some MLN to start operating. You can invest some MLN in my fund and I will start working!"
   );
 

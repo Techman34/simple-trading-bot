@@ -5,7 +5,7 @@ const estimateFullCost = async (
   marketPrice,
   order,
   fundAddress,
-  managerAddress
+  managerAddress = setup.defaultAccount
 ) => {
   const fundContract = await getFundContract(fundAddress);
   const gasEstimation = await fundContract.takeOrder.estimateGas(
@@ -15,14 +15,14 @@ const estimateFullCost = async (
       from: managerAddress
     }
   );
-  const gasPrice = setup.web3.eth.gasPrice;
+  const { gasPrice } = setup.web3.eth;
   const totalGasPrice = gasPrice.mul(gasEstimation);
   const gasPriceInETH = setup.web3.fromWei(totalGasPrice, "ether");
-  const gasPriceInMLN = gasPriceInETH * marketPrice;
+  const gasPriceInMLN = gasPriceInETH.mul(marketPrice);
   const fullCostInMLN =
     order.type === "sell"
-      ? order.price.toNumber() + gasPriceInMLN
-      : order.price.toNumber() - gasPriceInMLN;
+      ? order.price.plus(gasPriceInMLN)
+      : order.price.minus(gasPriceInMLN);
   return fullCostInMLN;
 };
 

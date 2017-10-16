@@ -1,21 +1,18 @@
-require("dotenv").config();
-
 import Web3 from "web3";
 import {
   setup,
   trace,
   getBalance,
   getActiveOrders,
-  melonTracker,
-  getOrder
+  performCalculations,
+  takeOrderFromFund
 } from "@melonproject/melon.js";
 
 import getReversedPrices from "./utils/getReversedPrices";
-// import createMarket from "./createMarket";
-import processOrder from "./utils/processOrder";
-import enhanceOrder from "./utils/enhanceOrder";
-import isFromAssetPair from "./utils/isFromAssetPair";
 import getOrCreateFund from "./utils/getOrCreateFund";
+import estimateFullCost from "./utils/estimateFullCost";
+
+require("dotenv").config();
 
 const web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
 
@@ -32,12 +29,59 @@ setup.init({
 
 const baseTokenSymbol = "ETH-T";
 const quoteTokenSymbol = "MLN-T";
-const assetPairArray = [baseTokenSymbol, quoteTokenSymbol];
 const apiPath = "https://api.liqui.io/api/3/ticker/";
+
+let busy = false;
+
+const processOrder = async (order, fundAddress, marketPrice) => {
+  const fullCost = await estimateFullCost(marketPrice.last, order, fundAddress);
+
+  if (
+    !(order.type === "sell" && fullCost < marketPrice.sell) &&
+    !(order.type === "buy" && fullCost > marketPrice.buy)
+  ) {
+    trace(`Order ${order.id} isnt profitable`);
+    return;
+  }
+
+  trace(`Order ${order.id} seems profitable`);
+  const balance = await getBalance(order.buy.symbol, fundAddress);
+
+  if (balance.lt(fullCost)) {
+    trace.warn(`Insufficient ${order.buy.symbol} to take this order :(`);
+    trace.warn(`Got: ${balance.toFixed(4)}, need: ${fullCost.toFixed(4)}`);
+    return;
+  }
+
+  const tradeReceipt = await takeOrderFromFund(order.id, fundAddress);
+  if (tradeReceipt.executedQuantity.gt(0)) {
+    trace(`Took order ${order.id}`);
+  } else {
+    trace.warn(`Something went wrong`);
+  }
+};
+
+const checkMarket = async fundAddress => {
+  const activeOrders = await getActiveOrders(baseTokenSymbol, quoteTokenSymbol);
+  trace(`${activeOrders.length} active orders on the orderbook`);
+
+  const marketPrice = await getReversedPrices(
+    baseTokenSymbol,
+    quoteTokenSymbol,
+    apiPath
+  );
+
+  trace(`Got prices. Last: ${marketPrice.last}`);
+
+  await activeOrders.reduce(async (accumulator, order) => {
+    await accumulator;
+    return processOrder(order, fundAddress, marketPrice);
+  }, new Promise(resolve => resolve()));
+};
 
 (async () => {
   trace({
-    message: `Melon trading bot starting w following eth address ${setup.defaultAccount}`
+    message: `Melon trading bot address: ${setup.defaultAccount}`
   });
   const ketherBalance = setup.web3.fromWei(
     setup.web3.eth.getBalance(setup.defaultAccount)
@@ -50,52 +94,29 @@ const apiPath = "https://api.liqui.io/api/3/ticker/";
 
   const fund = await getOrCreateFund();
 
-  const activeOrders = await getActiveOrders(baseTokenSymbol, quoteTokenSymbol);
+  web3.eth.filter("latest", async () => {
+    const block = web3.eth.getBlock("latest");
 
-  /* First processing all active orders on startup */
-  await Promise.all(
-    activeOrders.map(async order => {
-      const marketPrice = await getReversedPrices(
-        baseTokenSymbol,
-        quoteTokenSymbol,
-        apiPath
-      );
+    if (busy) {
+      trace(`Block ${block.number}. Skipping. Still busy.`);
+    } else {
+      trace(`Block ${block.number}. Checking orderbook ...`);
 
       try {
-        await processOrder(order, fund.address, marketPrice);
+        busy = true;
+        const calculations = await performCalculations(fund.address);
+        const fundEthBalance = await getBalance("ETH-T", fund.address);
+        const fundMlnBalance = await getBalance("MLN-T", fund.address);
+        trace(`Fund status: ETH-T ${fundEthBalance}, MLN-T ${fundMlnBalance}`);
+        trace(`Shareprice: ${calculations.sharePrice.toString()}`);
+        await checkMarket(fund.address);
       } catch (e) {
         trace.warn(`Error while processingOrder`, e);
+        console.error(e);
+      } finally {
+        trace("Block processed");
+        busy = false;
       }
-    })
-  );
-
-  /* Then listening for any new order and processing each new incoming order */
-  const tracker = melonTracker.on("LogItemUpdate");
-
-  tracker((type, data) => {
-    console.log(type);
-    try {
-      processNewOrder(type.id, fund.address);
-    } catch (e) {
-      trace.warn(`Error while processing new order`, e);
     }
   });
 })();
-
-const processNewOrder = async (id, fundAddress) => {
-  const order = await getOrder(id);
-  if (isFromAssetPair(order, assetPairArray)) {
-    const enhancedOrder = enhanceOrder(
-      order,
-      baseTokenSymbol,
-      quoteTokenSymbol
-    );
-
-    const marketPrice = await getReversedPrices(
-      baseTokenSymbol,
-      quoteTokenSymbol,
-      apiPath
-    );
-    await processOrder(enhancedOrder, fundAddress, marketPrice);
-  }
-};
