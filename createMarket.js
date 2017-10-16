@@ -28,7 +28,7 @@ const tracer = ({ timestamp, message, category, data }) => {
 
 setup.init({
   web3,
-  defaultAccount: "0x02e00f9c517baf4fb4e9a7bf005a56db84a4cfbc",
+  defaultAccount: "0x2b3f0ef33be5f80171e4206ed2e5a40640388af1",
   tracer
 });
 

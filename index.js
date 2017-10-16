@@ -9,7 +9,7 @@ import {
 } from "@melonproject/melon.js";
 import setupBot from "./utils/setupBot";
 import getReversedPrices from "./utils/getReversedPrices";
-import createMarket from "./createMarket";
+// import createMarket from "./createMarket";
 import processOrder from "./utils/processOrder";
 import enhanceOrder from "./utils/enhanceOrder";
 import isFromAssetPair from "./utils/isFromAssetPair";
@@ -23,7 +23,7 @@ const tracer = ({ timestamp, message, category, data }) => {
 
 setup.init({
   web3,
-  defaultAccount: "0x00590d7fbc805b7882788d71afbe7ec2deaf03ca",
+  defaultAccount: "0xfc669feb5c9a551bea36729f8f4193929a44871d",
   tracer
 });
 
@@ -48,8 +48,8 @@ const apiPath = "https://api.liqui.io/api/3/ticker/";
 
   // await createMarket();
 
-  // const MelonBot = await setupBot(INITIAL_SUBSCRIBE_QUANTITY);
-  const MelonBot = { address: "0xb6cffa05542404eee25653e7582d5d71d55dcb9f" };
+  const MelonBot = await setupBot(INITIAL_SUBSCRIBE_QUANTITY);
+  // const MelonBot = { address: '0x9e662fab9cff01f08ed8623ca2fd37ecc18a80f2' };
 
   const activeOrders = await getActiveOrders(baseTokenSymbol, quoteTokenSymbol);
 

@@ -9,8 +9,10 @@
   "scripts": {
     "dev": "supervisor -s -x babel-node index.js",
     "start": "babel-node index.js",
+    "start-market": "babel node createMarket.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "precommit": "lint-staged"
+    "precommit": "lint-staged",
+    "prettier": "prettier --write"
   },
   "lint-staged": {
     "*.js": [
