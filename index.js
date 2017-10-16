@@ -14,7 +14,9 @@ import estimateFullCost from "./utils/estimateFullCost";
 
 require("dotenv").config();
 
-const web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+const web3 = new Web3(
+  new Web3.providers.HttpProvider("http://localhost:8545")
+);
 
 const tracer = ({ timestamp, message, category, data }) => {
   const args = [timestamp.toISOString(), `[${category}]`, message];
@@ -34,7 +36,11 @@ const apiPath = "https://api.liqui.io/api/3/ticker/";
 let busy = false;
 
 const processOrder = async (order, fundAddress, marketPrice) => {
-  const fullCost = await estimateFullCost(marketPrice.last, order, fundAddress);
+  const fullCost = await estimateFullCost(
+    marketPrice.last,
+    order,
+    fundAddress
+  );
 
   if (
     !(order.type === "sell" && fullCost < marketPrice.sell) &&
@@ -62,7 +68,10 @@ const processOrder = async (order, fundAddress, marketPrice) => {
 };
 
 const checkMarket = async fundAddress => {
-  const activeOrders = await getActiveOrders(baseTokenSymbol, quoteTokenSymbol);
+  const activeOrders = await getActiveOrders(
+    baseTokenSymbol,
+    quoteTokenSymbol
+  );
   trace(`${activeOrders.length} active orders on the orderbook`);
 
   const marketPrice = await getReversedPrices(
