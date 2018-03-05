@@ -1,27 +1,33 @@
 import {
   getFundForManager,
   getFundInformations,
-  setup,
-  trace
+  trace,
 } from "@melonproject/melon.js";
 import setupBot from "./setupBot";
 
-const getOrCreateFund = async (managerAddress = setup.defaultAccount) => {
-  const fundAddress = await getFundForManager(managerAddress);
+const getOrCreateFund = async environment => {
+  const fundAddress = await getFundForManager(environment, {
+    managerAddress: environment.account.address,
+  });
 
   if (!fundAddress) {
-    trace(`No fund found for ${managerAddress}. Setting one up.`);
-    const fund = await setupBot();
+    trace(
+      `No fund found for ${environment.account
+        .address}. Setting one up.`,
+    );
+    const fund = await setupBot(environment);
     trace(`New fund created with address: ${fund.address}`);
     return fund;
   }
 
-  const fund = await getFundInformations(fundAddress);
+  const fund = await getFundInformations(environment, {
+    fundAddress,
+  });
   trace(`Fund found with address: ${fund.fundAddress}`);
   return {
     address: fund.fundAddress,
     name: fund.name,
-    timestamp: fund.creationDate
+    timestamp: fund.inception,
   };
 };
 
