@@ -10,13 +10,15 @@ import {
   performCalculations
 } from "@melonproject/melon.js";
 
-const setupBot = async INITIAL_SUBSCRIBE_QUANTITY => {
+const setupBot = async (
+  INITIAL_SUBSCRIBE_QUANTITY = process.env.INITIAL_SUBSCRIBE_QUANTITY
+) => {
   trace({ message: "Creating a Melon fund" });
   const MelonBot = await setupFund("MelonBot");
   trace({
     message: `${MelonBot.name} here! Nice to meet you. My fund address is ${MelonBot.address} `
   });
-  console.log(
+  trace(
     "I need some MLN to start operating. You can invest some MLN in my fund and I will start working!"
   );
 

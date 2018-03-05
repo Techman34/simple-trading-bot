@@ -1,7 +1,7 @@
 {
-  "extends": "airbnb-base",
-  "plugins": ["prettier"],
+  "parser": "babel-eslint",
+  "extends": ["airbnb-base", "prettier"],
   "rules": {
-    "prettier/prettier": "error"
+    "max-len": ["error", 70, 2]
   }
 }

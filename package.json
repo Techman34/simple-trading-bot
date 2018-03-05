@@ -9,8 +9,10 @@
   "scripts": {
     "dev": "supervisor -s -x babel-node index.js",
     "start": "babel-node index.js",
+    "start-market": "babel-node createMarket.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "precommit": "lint-staged"
+    "prettier": "prettier --write **/*.js",
+    "new-fund": "babel-node newFund.js"
   },
   "lint-staged": {
     "*.js": [
@@ -38,7 +40,9 @@
   "dependencies": {
     "@melonproject/melon.js": "0.3.3-alpha.3",
     "bignumber.js": "^4.1.0",
-    "request-promise": "^4.2.2"
+    "dotenv": "^4.0.0",
+    "request-promise": "^4.2.2",
+    "web3": "^0.18.0"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
