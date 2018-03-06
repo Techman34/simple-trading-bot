@@ -10,7 +10,6 @@ const getReversedPrices = async (
     "-T-M",
     "",
   )}_${quoteTokenSymbol.replace("-T-M", "")}`.toLocaleLowerCase();
-  console.log(assetPair);
   const uri = `${apiPath}${assetPair}`;
   const rawPrices = await rp({ uri, json: true });
 

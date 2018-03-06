@@ -22,13 +22,13 @@ const preflightTakeOrdersConditions = async (
     );
 
     if (getAddress(config, order.sell.symbol) === fundAddress) {
-      trace("Fund buying its own fund token is forbidden.");
+      trace.warn("Fund buying its own fund token is forbidden.");
       return false;
     }
 
     const isShutDown = await fundContract.instance.isShutDown.call();
     if (isShutDown !== false) {
-      trace("Fund is shut down");
+      trace.warn("Fund is shut down");
       return false;
     }
 
@@ -37,7 +37,7 @@ const preflightTakeOrdersConditions = async (
       owner.toLowerCase() !==
       environment.account.address.toLowerCase()
     ) {
-      trace("Not owner of fund");
+      trace.warn("Not owner of fund");
       return false;
     }
 
@@ -51,7 +51,7 @@ const preflightTakeOrdersConditions = async (
       ],
     );
     if (!ExistsPriceOnAssetPair) {
-      trace(
+      trace.warn(
         "Price not provided on this asset pair by your datafeed.",
       );
       return false;
@@ -66,7 +66,7 @@ const preflightTakeOrdersConditions = async (
     ]);
 
     if (!isRecent) {
-      trace("Pricefeed data is outdated :( Please try again.");
+      trace.warn("Pricefeed data is outdated :( Please try again.");
       return false;
     }
 
@@ -77,7 +77,7 @@ const preflightTakeOrdersConditions = async (
     });
 
     if (!isAllowed) {
-      trace("Risk Management module does not allow this trade.");
+      trace.warn("Risk Management module does not allow this trade.");
       return false;
     }
 
@@ -89,7 +89,7 @@ const preflightTakeOrdersConditions = async (
         : quantityAsked;
 
     if (!quantity.lte(order.sell.howMuch)) {
-      trace(
+      trace.warn(
         "Quantity asked too high compared to quantity for sale on the order.",
       );
       return false;
