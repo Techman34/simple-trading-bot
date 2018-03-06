@@ -1,5 +1,8 @@
-import BigNumber from "bignumber.js";
-import { getFundContract } from "@melonproject/melon.js";
+import {
+  getFundContract,
+  toProcessable,
+  getConfig,
+} from "@melonproject/melon.js";
 
 const estimateFullCost = async (
   environment,
@@ -7,14 +10,23 @@ const estimateFullCost = async (
   order,
   fundAddress,
 ) => {
-  const fundContract = await getFundContract(fundAddress);
-  const gasPrice = await environment.api.eth.gasPrice;
-  const gasEstimation = await fundContract.takeOrder.estimateGas(
+  const fundContract = await getFundContract(
+    environment,
+    fundAddress,
+  );
+  const gasPrice = await environment.api.eth.gasPrice();
+  const config = await getConfig(environment);
+
+  const gasEstimation = await fundContract.instance.takeOrder.estimateGas(
     { from: environment.account.address, gasPrice },
-    [order.id, new BigNumber(0.5)],
+    [
+      order.id,
+      fundAddress,
+      toProcessable(config, order.sell.howMuch, order.sell.symbol),
+    ],
   );
   const totalGasPrice = gasPrice.mul(gasEstimation);
-  const gasPriceInETH = environment.api.util.fromWei(
+  const gasPriceInETH = await environment.api.util.fromWei(
     totalGasPrice,
     "ether",
   );
