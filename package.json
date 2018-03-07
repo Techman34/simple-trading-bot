@@ -38,9 +38,10 @@
   },
   "homepage": "https://github.com/melonproject/simple-trading-bot#readme",
   "dependencies": {
-    "@melonproject/melon.js": "0.3.3-alpha.3",
+    "@melonproject/melon.js": "0.7.6-0",
     "bignumber.js": "^4.1.0",
     "dotenv": "^4.0.0",
+    "request": "^2.83.0",
     "request-promise": "^4.2.2",
     "web3": "^0.18.0"
   },

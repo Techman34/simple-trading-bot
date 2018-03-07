@@ -1,23 +1,35 @@
-import BigNumber from "bignumber.js";
-import { setup, getFundContract } from "@melonproject/melon.js";
+import {
+  getFundContract,
+  toProcessable,
+  getConfig,
+} from "@melonproject/melon.js";
 
 const estimateFullCost = async (
+  environment,
   marketPrice,
   order,
   fundAddress,
-  managerAddress = setup.defaultAccount
 ) => {
-  const fundContract = await getFundContract(fundAddress);
-  const gasEstimation = await fundContract.takeOrder.estimateGas(
-    order.id,
-    new BigNumber(0.5),
-    {
-      from: managerAddress
-    }
+  const fundContract = await getFundContract(
+    environment,
+    fundAddress,
   );
-  const { gasPrice } = setup.web3.eth;
+  const gasPrice = await environment.api.eth.gasPrice();
+  const config = await getConfig(environment);
+
+  const gasEstimation = await fundContract.instance.takeOrder.estimateGas(
+    { from: environment.account.address, gasPrice },
+    [
+      order.id,
+      fundAddress,
+      toProcessable(config, order.sell.howMuch, order.sell.symbol),
+    ],
+  );
   const totalGasPrice = gasPrice.mul(gasEstimation);
-  const gasPriceInETH = setup.web3.fromWei(totalGasPrice, "ether");
+  const gasPriceInETH = await environment.api.util.fromWei(
+    totalGasPrice,
+    "ether",
+  );
   const gasPriceInMLN = gasPriceInETH.mul(marketPrice);
   const fullCostInMLN =
     order.type === "sell"
