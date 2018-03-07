@@ -37,7 +37,10 @@ const processOrder = async (
     fundAddress,
     order.buy.howMuch,
   );
-  if (conditions && fundTokenBalance.gte(order.buy.howMuch)) {
+  if (
+    conditions !== false &&
+    fundTokenBalance.gte(order.buy.howMuch)
+  ) {
     const fullCost = await estimateFullCost(
       environment,
       marketPrice.last,
@@ -79,7 +82,7 @@ const processOrder = async (
       trace.warn(`Something went wrong`);
     }
   } else {
-    trace.warn(`Insufficient balance`);
+    trace.warn(`Order couldn't be executed`);
   }
 };
 
@@ -121,8 +124,8 @@ const checkMarket = async (
   const environment = getEnvironment();
   const config = await getConfig(environment);
 
-  const baseTokenSymbol = await getQuoteAssetSymbol(environment);
-  const quoteTokenSymbol = await getNativeAssetSymbol(environment);
+  const quoteTokenSymbol = await getQuoteAssetSymbol(environment);
+  const baseTokenSymbol = await getNativeAssetSymbol(environment);
 
   let busy = false;
 
