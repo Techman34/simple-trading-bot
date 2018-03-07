@@ -9,7 +9,7 @@ import {
   getBalance,
   getActiveOrders,
   performCalculations,
-  takeOrder,
+  takeOrder
 } from "@melonproject/melon.js";
 import { equals } from "./utils/functionalBigNumber";
 import getReversedPrices from "./utils/getReversedPrices";
@@ -25,64 +25,59 @@ const processOrder = async (
   environment,
   order,
   fundAddress,
-  marketPrice,
+  marketPrice
 ) => {
-  const fundTokenBalance = await getBalance(environment, {
-    tokenSymbol: order.buy.symbol,
-    ofAddress: fundAddress,
-  });
   const conditions = await preflightTakeOrderConditions(
     environment,
     order.id,
     fundAddress,
-    order.buy.howMuch,
+    order.buy.howMuch
   );
+
+  if (!conditions) {
+    trace.warn(`Order ${order.id} Takeorder preconditions not met`);
+    return;
+  }
+
+  const fullCost = await estimateFullCost(
+    environment,
+    marketPrice.last,
+    order,
+    fundAddress
+  );
+
   if (
-    conditions !== false &&
-    fundTokenBalance.gte(order.buy.howMuch)
+    !(order.type === "sell" && fullCost < marketPrice.sell) &&
+    !(order.type === "buy" && fullCost > marketPrice.buy)
   ) {
-    const fullCost = await estimateFullCost(
-      environment,
-      marketPrice.last,
-      order,
-      fundAddress,
+    trace(`Order ${order.id} isnt profitable`);
+    return;
+  }
+
+  trace(`Order ${order.id} seems profitable`);
+  const balance = await getBalance(environment, {
+    tokenSymbol: order.buy.symbol,
+    ofAddress: fundAddress
+  });
+
+  if (balance.lt(fullCost)) {
+    trace.warn(
+      `Insufficient ${order.buy.symbol} to take this order :(`
     );
+    trace.warn(
+      `Got: ${balance.toFixed(4)}, need: ${fullCost.toFixed(4)}`
+    );
+    return;
+  }
 
-    if (
-      !(order.type === "sell" && fullCost < marketPrice.sell) &&
-      !(order.type === "buy" && fullCost > marketPrice.buy)
-    ) {
-      trace(`Order ${order.id} isnt profitable`);
-      return;
-    }
-
-    trace(`Order ${order.id} seems profitable`);
-    const balance = await getBalance(environment, {
-      tokenSymbol: order.buy.symbol,
-      ofAddress: fundAddress,
-    });
-
-    if (balance.lt(fullCost)) {
-      trace.warn(
-        `Insufficient ${order.buy.symbol} to take this order :(`,
-      );
-      trace.warn(
-        `Got: ${balance.toFixed(4)}, need: ${fullCost.toFixed(4)}`,
-      );
-      return;
-    }
-
-    const tradeReceipt = await takeOrder(environment, {
-      id: order.id,
-      fundAddress,
-    });
-    if (tradeReceipt.executedQuantity.gt(0)) {
-      trace(`Took order ${order.id}`);
-    } else {
-      trace.warn(`Something went wrong`);
-    }
+  const tradeReceipt = await takeOrder(environment, {
+    id: order.id,
+    fundAddress
+  });
+  if (tradeReceipt.executedQuantity.gt(0)) {
+    trace(`Took order ${order.id}`);
   } else {
-    trace.warn(`Order couldn't be executed`);
+    trace.warn(`Something went wrong`);
   }
 };
 
@@ -90,18 +85,18 @@ const checkMarket = async (
   environment,
   fundAddress,
   baseTokenSymbol,
-  quoteTokenSymbol,
+  quoteTokenSymbol
 ) => {
   const activeOrders = await getActiveOrders(environment, {
     baseTokenSymbol,
-    quoteTokenSymbol,
+    quoteTokenSymbol
   });
   trace(`${activeOrders.length} active orders on the orderbook`);
 
   const marketPrice = await getReversedPrices(
     baseTokenSymbol,
     quoteTokenSymbol,
-    apiPath,
+    apiPath
   );
 
   trace(`Got prices. Last: ${marketPrice.last}`);
@@ -117,9 +112,9 @@ const checkMarket = async (
   setEnvironment({
     api,
     account: {
-      address: "0xa80B5F4103C8d027b2ba88bE9Ed9Bb009bF3d46f",
+      address: "0xa80B5F4103C8d027b2ba88bE9Ed9Bb009bF3d46f"
     },
-    providerType,
+    providerType
   });
   const environment = getEnvironment();
   const config = await getConfig(environment);
@@ -131,18 +126,18 @@ const checkMarket = async (
 
   trace({
     message: `Melon trading bot address: ${environment.account
-      .address}`,
+      .address}`
   });
   const ketherBalance = await environment.api.util.fromWei(
-    await environment.api.eth.getBalance(environment.account.address),
+    await environment.api.eth.getBalance(environment.account.address)
   );
   const melonBalance = await getBalance(environment, {
     tokenSymbol: quoteTokenSymbol,
-    ofAddress: environment.account.address,
+    ofAddress: environment.account.address
   });
   const etherBalance = await getBalance(environment, {
     tokenSymbol: baseTokenSymbol,
-    ofAddress: environment.account.address,
+    ofAddress: environment.account.address
   });
   trace({ message: `K-Etherbalance: Ξ${ketherBalance} ` });
   trace({ message: `Melon Token Balance: Ⓜ  ${melonBalance} ` });
@@ -171,28 +166,28 @@ const checkMarket = async (
             const calculations = await performCalculations(
               environment,
               {
-                fundAddress: fund.address,
-              },
+                fundAddress: fund.address
+              }
             );
             const fundEthBalance = await getBalance(environment, {
               tokenSymbol: baseTokenSymbol,
-              ofAddress: fund.address,
+              ofAddress: fund.address
             });
             const fundMlnBalance = await getBalance(environment, {
               tokenSymbol: quoteTokenSymbol,
-              ofAddress: fund.address,
+              ofAddress: fund.address
             });
             trace(
-              `Fund status: ${baseTokenSymbol} ${fundEthBalance}, ${quoteTokenSymbol} ${fundMlnBalance}`,
+              `Fund status: ${baseTokenSymbol} ${fundEthBalance}, ${quoteTokenSymbol} ${fundMlnBalance}`
             );
             trace(
-              `Shareprice: ${calculations.sharePrice.toString()}`,
+              `Shareprice: ${calculations.sharePrice.toString()}`
             );
             await checkMarket(
               environment,
               fund.address,
               baseTokenSymbol,
-              quoteTokenSymbol,
+              quoteTokenSymbol
             );
           } catch (e) {
             trace.warn(`Error while processingOrder`, e);
@@ -218,6 +213,6 @@ const checkMarket = async (
   pollBlock();
   const blockInterval = setInterval(
     pollBlock,
-    BLOCK_POLLING_INTERVAL,
+    BLOCK_POLLING_INTERVAL
   );
 })();
