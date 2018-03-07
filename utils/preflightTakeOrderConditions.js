@@ -43,14 +43,14 @@ const preflightTakeOrdersConditions = async (
 
     const priceFeedContract = await getPriceFeedContract(environment);
 
-    const ExistsPriceOnAssetPair = await priceFeedContract.instance.existsPriceOnAssetPair.call(
+    const existsPriceOnAssetPair = await priceFeedContract.instance.existsPriceOnAssetPair.call(
       {},
       [
         getAddress(config, order.buy.symbol),
         getAddress(config, order.sell.symbol),
       ],
     );
-    if (!ExistsPriceOnAssetPair) {
+    if (!existsPriceOnAssetPair) {
       trace.warn(
         "Price not provided on this asset pair by your datafeed.",
       );

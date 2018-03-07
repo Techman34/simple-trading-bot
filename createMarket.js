@@ -60,9 +60,11 @@ const marketInterval = async () => {
 
   try {
     trace("Start Interval");
-    // const ketherBalance = environment.api.util.fromWei(
-    //   environment.api.eth.getBalance(environment.account.address),
-    // );
+    const ketherBalance = await environment.api.util.fromWei(
+      await environment.api.eth.getBalance(
+        environment.account.address,
+      ),
+    );
 
     const melonBalance = await getBalance(environment, {
       tokenSymbol: quoteTokenSymbol,
@@ -72,7 +74,7 @@ const marketInterval = async () => {
       tokenSymbol: baseTokenSymbol,
       ofAddress: environment.account.address,
     });
-    // trace(`K-Etherbalance: Ξ${ketherBalance}`);
+    trace(`K-Etherbalance: Ξ${ketherBalance}`);
     trace(`Melon Token Balance: Ⓜ-T  ${melonBalance}`);
     trace(`Ether Token Balance: Ξ-T  ${etherBalance}`);
 

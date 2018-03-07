@@ -16,19 +16,19 @@ const setupBot = async (
 ) => {
   trace({ message: "Creating a Melon fund" });
   const signature = await signTermsAndConditions(environment);
-  const MelonBot = await setupFund(environment, {
-    name: "MelonBot",
+  const melonBot = await setupFund(environment, {
+    name: "melonBot",
     signature,
   });
   trace({
-    message: `${MelonBot.name} here! Nice to meet you. My fund address is ${MelonBot.address} `,
+    message: `${melonBot.name} here! Nice to meet you. My fund address is ${melonBot.address} `,
   });
   trace(
     "I need some MLN to start operating. You can invest some MLN in my fund and I will start working!",
   );
 
   const subscriptionRequest = await invest(environment, {
-    fundAddress: MelonBot.address,
+    fundAddress: melonBot.address,
     numShares: new BigNumber(INITIAL_INVEST_QUANTITY),
     offeredValue: new BigNumber(INITIAL_INVEST_QUANTITY),
   });
@@ -37,11 +37,11 @@ const setupBot = async (
   });
   await executeRequest(environment, {
     id: subscriptionRequest.id,
-    fundAddress: MelonBot.address,
+    fundAddress: melonBot.address,
   });
 
   const participation = await getParticipation(environment, {
-    fundAddress: MelonBot.address,
+    fundAddress: melonBot.address,
     investorAddress: environment.account.address,
   });
 
@@ -50,14 +50,14 @@ const setupBot = async (
   });
 
   const calculations = await performCalculations(environment, {
-    fundAddress: MelonBot.address,
+    fundAddress: melonBot.address,
   });
 
   trace({
     message: `Here are my numbers- GAV: ${calculations.gav}, NAV: ${calculations.nav}, Share Price: ${calculations.sharePrice}, totalSupply: ${calculations.totalSupply}`,
   });
 
-  return MelonBot;
+  return melonBot;
 };
 
 export default setupBot;

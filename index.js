@@ -130,9 +130,9 @@ const checkMarket = async (
     message: `Melon trading bot address: ${environment.account
       .address}`,
   });
-  // const ketherBalance = await environment.api.util.fromWei(
-  //   environment.api.eth.getBalance(environment.account.address),
-  // );
+  const ketherBalance = await environment.api.util.fromWei(
+    await environment.api.eth.getBalance(environment.account.address),
+  );
   const melonBalance = await getBalance(environment, {
     tokenSymbol: quoteTokenSymbol,
     ofAddress: environment.account.address,
@@ -141,7 +141,7 @@ const checkMarket = async (
     tokenSymbol: baseTokenSymbol,
     ofAddress: environment.account.address,
   });
-  // trace({ message: `K-Etherbalance: Ξ${ketherBalance} ` });
+  trace({ message: `K-Etherbalance: Ξ${ketherBalance} ` });
   trace({ message: `Melon Token Balance: Ⓜ  ${melonBalance} ` });
   trace({ message: `Ether Token Balance: Ⓜ  ${etherBalance} ` });
 
