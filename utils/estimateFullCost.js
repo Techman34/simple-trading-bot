@@ -32,7 +32,7 @@ const estimateFullCost = async (
   );
   const gasPriceInMLN = gasPriceInETH.mul(marketPrice);
   const fullCostInMLN =
-    order.type === "sell"
+    order.type === "buy"
       ? order.price.plus(gasPriceInMLN)
       : order.price.minus(gasPriceInMLN);
   return fullCostInMLN;
