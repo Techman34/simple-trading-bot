@@ -20,8 +20,8 @@ const estimateFullCost = async (
   const gasEstimation = await fundContract.instance.takeOrder.estimateGas(
     { from: environment.account.address, gasPrice },
     [
+      0,
       order.id,
-      fundAddress,
       toProcessable(config, order.sell.howMuch, order.sell.symbol),
     ],
   );
@@ -32,7 +32,7 @@ const estimateFullCost = async (
   );
   const gasPriceInMLN = gasPriceInETH.mul(marketPrice);
   const fullCostInMLN =
-    order.type === "sell"
+    order.type === "buy"
       ? order.price.plus(gasPriceInMLN)
       : order.price.minus(gasPriceInMLN);
   return fullCostInMLN;

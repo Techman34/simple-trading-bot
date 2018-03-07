@@ -31,15 +31,14 @@ function sleep(ms) {
 }
 
 const traceOrder = order =>
-  trace(
-    `Placed order (${order.id.toNumber()}): ` +
-      `Sell: ${order.sell.howMuch.toFixed(4)} ${order.sell
-        .symbol} / ` +
-      `Buy: ${order.buy.howMuch.toFixed(4)} ${order.buy.symbol} : ` +
-      `Price: ${order.sell.howMuch
-        .div(order.buy.howMuch)
-        .toFixed(4)}`,
-  );
+  trace(`Placed order (${order.id.toNumber()}): `);
+//  +
+//     `Sell: ${order.sell.howMuch.toFixed(4)} ${order.sell
+//       .symbol} / ` +
+//     `Buy: ${order.buy.howMuch.toFixed(4)} ${order.buy.symbol} : ` +
+//     `Price: ${order.sell.howMuch
+//       .div(order.buy.howMuch)
+//       .toFixed(4)}`,
 
 const marketInterval = async () => {
   const { providerType, api } = await getParityProvider(-1);
@@ -53,9 +52,8 @@ const marketInterval = async () => {
   const environment = getEnvironment();
   const config = await getConfig(environment);
 
-  const baseTokenSymbol = await getQuoteAssetSymbol(environment);
-  const quoteTokenSymbol = await getNativeAssetSymbol(environment);
-
+  const baseTokenSymbol = await getNativeAssetSymbol(environment);
+  const quoteTokenSymbol = await getQuoteAssetSymbol(environment);
   const busy = false;
 
   try {
@@ -78,7 +76,7 @@ const marketInterval = async () => {
     trace(`Melon Token Balance: Ⓜ-T  ${melonBalance}`);
     trace(`Ether Token Balance: Ξ-T  ${etherBalance}`);
 
-    const info = getTokenInfo(baseTokenSymbol);
+    const info = await getTokenInfo(config, baseTokenSymbol);
 
     const { buy, sell, last } = await getReversedPrices(
       baseTokenSymbol,
@@ -143,7 +141,6 @@ const marketInterval = async () => {
     traceOrder(sellorder4);
 
     // BUY ORDERS
-
     const buyorder1 = await makeOrderFromAccount(environment, {
       buy: {
         howMuch: new BigNumber((1 / sell).toFixed(15)),
@@ -199,6 +196,7 @@ const marketInterval = async () => {
     traceOrder(buyorder4);
   } catch (e) {
     trace.warn("Error in loop", e);
+    console.log(e);
   } finally {
     trace(`SLEEP: ${process.env.MARKET_SLEEP_MINUTES} Minutes`);
     await sleep(process.env.MARKET_SLEEP_MINUTES * MINUTE);

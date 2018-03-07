@@ -6,10 +6,10 @@ const getReversedPrices = async (
   quoteTokenSymbol,
   apiPath,
 ) => {
-  const assetPair = `${baseTokenSymbol.replace(
+  const assetPair = `${quoteTokenSymbol.replace(
     "-T-M",
     "",
-  )}_${quoteTokenSymbol.replace("-T-M", "")}`.toLocaleLowerCase();
+  )}_${baseTokenSymbol.replace("-T-M", "")}`.toLocaleLowerCase();
   const uri = `${apiPath}${assetPair}`;
   const rawPrices = await rp({ uri, json: true });
 
