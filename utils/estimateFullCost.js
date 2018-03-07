@@ -20,8 +20,8 @@ const estimateFullCost = async (
   const gasEstimation = await fundContract.instance.takeOrder.estimateGas(
     { from: environment.account.address, gasPrice },
     [
+      0,
       order.id,
-      fundAddress,
       toProcessable(config, order.sell.howMuch, order.sell.symbol),
     ],
   );

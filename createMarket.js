@@ -87,59 +87,59 @@ const marketInterval = async () => {
 
     trace(`Got prices. Buy: ${buy}, sell: ${sell}, last: ${last}`);
 
-    const sellorder1 = await makeOrderFromAccount(environment, {
-      sell: {
-        howMuch: new BigNumber((1 / sell).toFixed(15)),
-        symbol: baseTokenSymbol,
-      },
-      buy: {
-        howMuch: new BigNumber(1),
-        symbol: quoteTokenSymbol,
-      },
-    });
+    // const sellorder1 = await makeOrderFromAccount(environment, {
+    //   sell: {
+    //     howMuch: new BigNumber((1 / sell).toFixed(15)),
+    //     symbol: baseTokenSymbol,
+    //   },
+    //   buy: {
+    //     howMuch: new BigNumber(1),
+    //     symbol: quoteTokenSymbol,
+    //   },
+    // });
 
-    traceOrder(sellorder1);
+    // traceOrder(sellorder1);
 
-    const sellorder2 = await makeOrderFromAccount(environment, {
-      sell: {
-        howMuch: new BigNumber((1 / last).toFixed(15)),
-        symbol: baseTokenSymbol,
-      },
-      buy: {
-        howMuch: new BigNumber(1),
-        symbol: quoteTokenSymbol,
-      },
-    });
+    // const sellorder2 = await makeOrderFromAccount(environment, {
+    //   sell: {
+    //     howMuch: new BigNumber((1 / last).toFixed(15)),
+    //     symbol: baseTokenSymbol,
+    //   },
+    //   buy: {
+    //     howMuch: new BigNumber(1),
+    //     symbol: quoteTokenSymbol,
+    //   },
+    // });
 
-    traceOrder(sellorder2);
+    // traceOrder(sellorder2);
 
-    const sellorder3 = await makeOrderFromAccount(environment, {
-      sell: {
-        howMuch: new BigNumber((1 / buy).toFixed(15)),
-        symbol: baseTokenSymbol,
-      },
-      buy: {
-        howMuch: new BigNumber(1),
-        symbol: quoteTokenSymbol,
-      },
-    });
+    // const sellorder3 = await makeOrderFromAccount(environment, {
+    //   sell: {
+    //     howMuch: new BigNumber((1 / buy).toFixed(15)),
+    //     symbol: baseTokenSymbol,
+    //   },
+    //   buy: {
+    //     howMuch: new BigNumber(1),
+    //     symbol: quoteTokenSymbol,
+    //   },
+    // });
 
-    traceOrder(sellorder3);
+    // traceOrder(sellorder3);
 
-    const priceSell = 1 / buy + 1 / buy * 0.1;
+    // const priceSell = 1 / buy + 1 / buy * 0.1;
 
-    const sellorder4 = await makeOrderFromAccount(environment, {
-      sell: {
-        howMuch: new BigNumber(priceSell.toFixed(15)),
-        symbol: baseTokenSymbol,
-      },
-      buy: {
-        howMuch: new BigNumber(1),
-        symbol: quoteTokenSymbol,
-      },
-    });
+    // const sellorder4 = await makeOrderFromAccount(environment, {
+    //   sell: {
+    //     howMuch: new BigNumber(priceSell.toFixed(15)),
+    //     symbol: baseTokenSymbol,
+    //   },
+    //   buy: {
+    //     howMuch: new BigNumber(1),
+    //     symbol: quoteTokenSymbol,
+    //   },
+    // });
 
-    traceOrder(sellorder4);
+    // traceOrder(sellorder4);
 
     // BUY ORDERS
     const buyorder1 = await makeOrderFromAccount(environment, {
