@@ -46,13 +46,6 @@ const processOrder = async (environment, order, fundAddress, marketPrice) => {
     return;
   }
 
-  console.log(
-    order,
-    order.buy.howMuch.toString(),
-    order.buy.howMuch.toFixed(20),
-    greaterThan(order.sell.howMuch, MIN_ORDER_VALUE)
-  );
-
   trace(
     `${order.type}-order ${order.id} is profitable. ${order.type === "buy"
       ? "Ask"
@@ -73,9 +66,14 @@ const processOrder = async (environment, order, fundAddress, marketPrice) => {
   });
   const quantityAsked = min(balance, order.buy.howMuch);
 
-  console.log("XXXX Qty", quantityAsked, balance, order.buy.howMuch);
+  if (isZero(quantityAsked)) {
+    trace(
+      `Insufficent funds: ${displayNumber(quantityAsked)} ${order.buy.symbol}`
+    );
+    return;
+  }
 
-  // if (isZero())
+  console.log(quantityAsked);
 
   try {
     const conditions = await preflightTakeOrderConditions(
@@ -84,8 +82,6 @@ const processOrder = async (environment, order, fundAddress, marketPrice) => {
       fundAddress,
       quantityAsked
     );
-
-    console.log("------- CONDITIONS", conditions);
 
     if (!conditions) {
       trace.warn(`Order ${order.id} Takeorder preconditions not met`);
