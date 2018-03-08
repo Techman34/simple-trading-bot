@@ -5,38 +5,35 @@ import {
   getOrder,
   getPriceFeedContract,
   isTakePermitted,
-  trace,
+  trace
 } from "@melonproject/melon.js";
 
 const preflightTakeOrdersConditions = async (
   environment,
   id,
   fundAddress,
-  quantityAsked,
+  quantityAsked
 ) => {
   const order = await getOrder(environment, { id });
   const config = await getConfig(environment);
-  const fundContract = await getFundContract(
-    environment,
-    fundAddress,
-  );
+  const fundContract = await getFundContract(environment, fundAddress);
 
-  if (getAddress(config, order.sell.symbol) === fundAddress) {
-    trace.warn("Fund buying its own fund token is forbidden.");
+  const owner = await fundContract.instance.owner.call();
+  if (owner.toLowerCase() !== environment.account.address.toLowerCase()) {
+    trace.warn(`Order ${id}: Not owner of fund`);
     return false;
   }
 
   const isShutDown = await fundContract.instance.isShutDown.call();
   if (isShutDown !== false) {
-    trace.warn("Fund is shut down");
+    trace.warn(`Order ${id}: Fund is shut down`);
     return false;
   }
 
-  const owner = await fundContract.instance.owner.call();
-  if (
-    owner.toLowerCase() !== environment.account.address.toLowerCase()
-  ) {
-    trace.warn("Not owner of fund");
+  if (getAddress(config, order.sell.symbol) === fundAddress) {
+    trace.warn(
+      `Order ${id}: Order ${id}: Fund buying its own fund token is forbidden.`
+    );
     return false;
   }
 
@@ -46,37 +43,39 @@ const preflightTakeOrdersConditions = async (
     {},
     [
       getAddress(config, order.buy.symbol),
-      getAddress(config, order.sell.symbol),
-    ],
+      getAddress(config, order.sell.symbol)
+    ]
   );
   if (!existsPriceOnAssetPair) {
     trace.warn(
-      "Price not provided on this asset pair by your datafeed.",
+      `Order ${id}: Price not provided on this asset pair by your datafeed.`
     );
     return false;
   }
 
   const [
     isRecent,
-    referencePrice,
+    referencePrice
   ] = await priceFeedContract.instance.getReferencePrice.call({}, [
     getAddress(config, order.buy.symbol),
-    getAddress(config, order.sell.symbol),
+    getAddress(config, order.sell.symbol)
   ]);
 
   if (!isRecent) {
-    trace.warn("Pricefeed data is outdated :( Please try again.");
+    trace.warn(`Order ${id}: Pricefeed data is outdated :( Please try again.`);
     return false;
   }
 
   const isAllowed = await isTakePermitted(environment, {
     referencePrice,
     orderId: id,
-    fundContract,
+    fundContract
   });
 
   if (!isAllowed) {
-    trace.warn("Risk Management module does not allow this trade.");
+    trace.warn(
+      `Order ${id}: Risk Management module does not allow this trade.`
+    );
     return false;
   }
 
@@ -89,7 +88,7 @@ const preflightTakeOrdersConditions = async (
 
   if (!quantity.lte(order.sell.howMuch)) {
     trace.warn(
-      "Quantity asked too high compared to quantity for sale on the order.",
+      `Order ${id}: Quantity asked too high compared to quantity for sale on the order`
     );
     return false;
   }
