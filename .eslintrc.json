@@ -2,6 +2,6 @@
   "parser": "babel-eslint",
   "extends": ["airbnb-base", "prettier"],
   "rules": {
-    "max-len": ["error", 70, 2]
+    "max-len": ["error", 80, 2]
   }
 }

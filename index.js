@@ -2,127 +2,31 @@ import {
   setEnvironment,
   getParityProvider,
   getEnvironment,
-  getConfig,
   getQuoteAssetSymbol,
   getNativeAssetSymbol,
   trace,
   getBalance,
-  getActiveOrders,
-  performCalculations,
-  takeOrder,
+  performCalculations
 } from "@melonproject/melon.js";
 import { equals } from "./utils/functionalBigNumber";
-import getReversedPrices from "./utils/getReversedPrices";
 import getOrCreateFund from "./utils/getOrCreateFund";
-import estimateFullCost from "./utils/estimateFullCost";
-import preflightTakeOrderConditions from "./utils/preflightTakeOrderConditions";
+import checkMarket from "./utils/checkMarket";
 
 require("dotenv").config();
 
-const apiPath = "https://api.liqui.io/api/3/ticker/";
-
-const processOrder = async (
-  environment,
-  order,
-  fundAddress,
-  marketPrice,
-) => {
-  const fundTokenBalance = await getBalance(environment, {
-    tokenSymbol: order.buy.symbol,
-    ofAddress: fundAddress,
-  });
-  const conditions = await preflightTakeOrderConditions(
-    environment,
-    order.id,
-    fundAddress,
-    order.buy.howMuch,
-  );
-  if (
-    conditions !== false &&
-    fundTokenBalance.gte(order.buy.howMuch)
-  ) {
-    const fullCost = await estimateFullCost(
-      environment,
-      marketPrice.last,
-      order,
-      fundAddress,
-    );
-
-    if (
-      !(order.type === "sell" && fullCost < marketPrice.sell) &&
-      !(order.type === "buy" && fullCost > marketPrice.buy)
-    ) {
-      trace(`Order ${order.id} isnt profitable`);
-      return;
-    }
-
-    trace(`Order ${order.id} seems profitable`);
-    const balance = await getBalance(environment, {
-      tokenSymbol: order.buy.symbol,
-      ofAddress: fundAddress,
-    });
-
-    if (balance.lt(fullCost)) {
-      trace.warn(
-        `Insufficient ${order.buy.symbol} to take this order :(`,
-      );
-      trace.warn(
-        `Got: ${balance.toFixed(4)}, need: ${fullCost.toFixed(4)}`,
-      );
-      return;
-    }
-
-    const tradeReceipt = await takeOrder(environment, {
-      id: order.id,
-      fundAddress,
-    });
-    if (tradeReceipt.executedQuantity.gt(0)) {
-      trace(`Took order ${order.id}`);
-    } else {
-      trace.warn(`Something went wrong`);
-    }
-  } else {
-    trace.warn(`Order couldn't be executed`);
-  }
-};
-
-const checkMarket = async (
-  environment,
-  fundAddress,
-  baseTokenSymbol,
-  quoteTokenSymbol,
-) => {
-  const activeOrders = await getActiveOrders(environment, {
-    baseTokenSymbol,
-    quoteTokenSymbol,
-  });
-  trace(`${activeOrders.length} active orders on the orderbook`);
-
-  const marketPrice = await getReversedPrices(
-    baseTokenSymbol,
-    quoteTokenSymbol,
-    apiPath,
-  );
-
-  trace(`Got prices. Last: ${marketPrice.last}`);
-
-  await activeOrders.reduce(async (accumulator, order) => {
-    await accumulator;
-    return processOrder(environment, order, fundAddress, marketPrice);
-  }, new Promise(resolve => resolve()));
-};
+const BLOCK_POLLING_INTERVAL = 4 * 1000;
+const MAX_INTERVAL_BETWEEN_BLOCKS = 5;
 
 (async () => {
   const { providerType, api } = await getParityProvider(-1);
   setEnvironment({
     api,
     account: {
-      address: "0xa80B5F4103C8d027b2ba88bE9Ed9Bb009bF3d46f",
+      address: process.env.DEFAULT_ACCOUNT
     },
-    providerType,
+    providerType
   });
   const environment = getEnvironment();
-  const config = await getConfig(environment);
 
   const quoteTokenSymbol = await getQuoteAssetSymbol(environment);
   const baseTokenSymbol = await getNativeAssetSymbol(environment);
@@ -130,27 +34,11 @@ const checkMarket = async (
   let busy = false;
 
   trace({
-    message: `Melon trading bot address: ${environment.account
-      .address}`,
+    message: `Melon trading bot address: ${environment.account.address}`
   });
-  const ketherBalance = await environment.api.util.fromWei(
-    await environment.api.eth.getBalance(environment.account.address),
-  );
-  const melonBalance = await getBalance(environment, {
-    tokenSymbol: quoteTokenSymbol,
-    ofAddress: environment.account.address,
-  });
-  const etherBalance = await getBalance(environment, {
-    tokenSymbol: baseTokenSymbol,
-    ofAddress: environment.account.address,
-  });
-  trace({ message: `K-Etherbalance: Ξ${ketherBalance} ` });
-  trace({ message: `Melon Token Balance: Ⓜ  ${melonBalance} ` });
-  trace({ message: `Ether Token Balance: Ⓜ  ${etherBalance} ` });
 
   const fund = await getOrCreateFund(environment);
-  const BLOCK_POLLING_INTERVAL = 4 * 1000;
-  const MAX_INTERVAL_BETWEEN_BLOCKS = 5;
+
   let lastBlockNumber;
   let intervalsSinceLastBlock = 0;
 
@@ -159,8 +47,6 @@ const checkMarket = async (
       const blockNumber = await api.eth.blockNumber();
 
       if (!equals(blockNumber, lastBlockNumber)) {
-        console.log("Incoming block ... ");
-
         if (busy) {
           trace(`Block ${blockNumber}. Skipping. Still busy.`);
         } else {
@@ -168,31 +54,28 @@ const checkMarket = async (
 
           try {
             busy = true;
-            const calculations = await performCalculations(
-              environment,
-              {
-                fundAddress: fund.address,
-              },
+            const calculations = await performCalculations(environment, {
+              fundAddress: fund.address
+            });
+            const userEthBalance = await environment.api.util.fromWei(
+              await environment.api.eth.getBalance(environment.account.address)
             );
-            const fundEthBalance = await getBalance(environment, {
+            const fundBaseBalance = await getBalance(environment, {
               tokenSymbol: baseTokenSymbol,
-              ofAddress: fund.address,
+              ofAddress: fund.address
             });
-            const fundMlnBalance = await getBalance(environment, {
+            const fundQuoteBalance = await getBalance(environment, {
               tokenSymbol: quoteTokenSymbol,
-              ofAddress: fund.address,
+              ofAddress: fund.address
             });
             trace(
-              `Fund status: ${baseTokenSymbol} ${fundEthBalance}, ${quoteTokenSymbol} ${fundMlnBalance}`,
-            );
-            trace(
-              `Shareprice: ${calculations.sharePrice.toString()}`,
+              `Fund balance: ${baseTokenSymbol} ${fundBaseBalance}, ${quoteTokenSymbol} ${fundQuoteBalance} - Shareprice: ${calculations.sharePrice.toString()} - User ETH Balance: ${userEthBalance}`
             );
             await checkMarket(
               environment,
               fund.address,
               baseTokenSymbol,
-              quoteTokenSymbol,
+              quoteTokenSymbol
             );
           } catch (e) {
             trace.warn(`Error while processingOrder`, e);
@@ -216,8 +99,5 @@ const checkMarket = async (
   };
 
   pollBlock();
-  const blockInterval = setInterval(
-    pollBlock,
-    BLOCK_POLLING_INTERVAL,
-  );
+  setInterval(pollBlock, BLOCK_POLLING_INTERVAL);
 })();

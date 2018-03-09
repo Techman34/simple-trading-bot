@@ -1,15 +1,22 @@
 import rp from "request-promise";
 import BigNumber from "bignumber.js";
 
+const cleanSymbol = symbol =>
+  symbol
+    .replace("-M", "")
+    .replace("-T", "")
+    .toLowerCase();
+
 const getReversedPrices = async (
   baseTokenSymbol,
   quoteTokenSymbol,
-  apiPath,
+  apiPath
 ) => {
-  const assetPair = `${quoteTokenSymbol.replace(
-    "-T-M",
-    "",
-  )}_${baseTokenSymbol.replace("-T-M", "")}`.toLocaleLowerCase();
+  const assetPair = [
+    cleanSymbol(quoteTokenSymbol),
+    cleanSymbol(baseTokenSymbol)
+  ].join("_");
+
   const uri = `${apiPath}${assetPair}`;
   const rawPrices = await rp({ uri, json: true });
 
@@ -19,7 +26,7 @@ const getReversedPrices = async (
   return {
     last: new BigNumber(1).div(rawPrices[assetPair].last),
     buy: new BigNumber(1).div(rawPrices[assetPair].sell),
-    sell: new BigNumber(1).div(rawPrices[assetPair].buy),
+    sell: new BigNumber(1).div(rawPrices[assetPair].buy)
   };
 };
 
